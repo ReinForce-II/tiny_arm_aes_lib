@@ -6,6 +6,7 @@
 #include <time.h>
 
 #define TEST_SIZE (16 * 1024 * 1024)
+#define VALIDATION_LEN 32
 
 int main() {
     uint8_t key[16], iv[16];
@@ -38,6 +39,40 @@ int main() {
     uint64_t clock_2 = clock();
     asimd_aes_enc_cfb8(v_round_keys, iv, input, output, TEST_SIZE);
     uint64_t clock_3 = clock();
+
+    memset(input, 0, VALIDATION_LEN);
+    asimd_aes_enc_ecb(v_round_keys, input, output, VALIDATION_LEN);
+    uint8_t va_ecb[] = {0x66, 0xe9, 0x4b, 0xd4, 0xef, 0x8a, 0x2c, 0x3b,
+                        0x88, 0x4c, 0xfa, 0x59, 0xca, 0x34, 0x2b, 0x2e,
+                        0x66, 0xe9, 0x4b, 0xd4, 0xef, 0x8a, 0x2c, 0x3b,
+                        0x88, 0x4c, 0xfa, 0x59, 0xca, 0x34, 0x2b, 0x2e};
+    if (memcmp(va_ecb, output, VALIDATION_LEN)) {
+        printf("ECB: FAIL\n");
+    } else {
+        printf("ECB: PASS\n");
+    }
+    memset(input, 0, VALIDATION_LEN);
+    asimd_aes_enc_cbc(v_round_keys, iv, input, output, VALIDATION_LEN);
+    uint8_t va_cbc[] = {0x66, 0xe9, 0x4b, 0xd4, 0xef, 0x8a, 0x2c, 0x3b,
+                        0x88, 0x4c, 0xfa, 0x59, 0xca, 0x34, 0x2b, 0x2e,
+                        0xf7, 0x95, 0xbd, 0x4a, 0x52, 0xe2, 0x9e, 0xd7,
+                        0x13, 0xd3, 0x13, 0xfa, 0x20, 0xe9, 0x8d, 0xbc};
+    if (memcmp(va_cbc, output, VALIDATION_LEN)) {
+        printf("CBC: FAIL\n");
+    } else {
+        printf("CBC: PASS\n");
+    }
+    memset(input, 0, VALIDATION_LEN);
+    asimd_aes_enc_cfb8(v_round_keys, iv, input, output, VALIDATION_LEN);
+    uint8_t va_cfb8[] = {0x66, 0x16, 0xf9, 0x2e, 0x42, 0xa8, 0xf1, 0x1a,
+                         0x91, 0x16, 0x68, 0x57, 0x8e, 0xc3, 0xaa, 0x0f,
+                         0x93, 0x00, 0x4a, 0xab, 0x22, 0xb1, 0x2b, 0x26,
+                         0xd1, 0x28, 0x96, 0x73, 0x1c, 0xd1, 0x12, 0xf6};
+    if (memcmp(va_cfb8, output, VALIDATION_LEN)) {
+        printf("CFB8: FAIL\n");
+    } else {
+        printf("CFB8: PASS\n");
+    }
 
     free(input);
     free(output);
