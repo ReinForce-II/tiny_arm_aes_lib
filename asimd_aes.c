@@ -70,6 +70,22 @@ void asimd_aes_enc_cbc(const uint8x16_t rdkeys[], const uint8_t iv[],
     }
 }
 
+void asimd_aes_enc_cfb(const uint8x16_t rdkeys[], const uint8_t iv[],
+                       const uint8_t input[], uint8_t output[],
+                       uint32_t length) {
+    uint8x16_t __iv;
+    __iv = vld1q_u8(iv);
+
+    while (length >= 16) {
+        __iv = asimd_aes_enc_core(rdkeys, __iv);
+        __iv = veorq_u8(vld1q_u8(input), __iv);
+        vst1q_u8(output, __iv);
+        input += 16;
+        output += 16;
+        length -= 16;
+    }
+}
+
 void asimd_aes_enc_cfb8(const uint8x16_t rdkeys[], const uint8_t iv[],
                         const uint8_t input[], uint8_t output[],
                         uint32_t length) {

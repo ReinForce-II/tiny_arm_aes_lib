@@ -11,6 +11,9 @@ void asimd_aes_enc_ecb(const uint8x16_t rdkeys[], const uint8_t input[],
 void asimd_aes_enc_cbc(const uint8x16_t rdkeys[], const uint8_t iv[],
                        const uint8_t input[], uint8_t output[],
                        uint32_t length);
+void asimd_aes_enc_cfb(const uint8x16_t rdkeys[], const uint8_t iv[],
+                       const uint8_t input[], uint8_t output[],
+                       uint32_t length);
 void asimd_aes_enc_cfb8(const uint8x16_t rdkeys[], const uint8_t iv[],
                         const uint8_t input[], uint8_t output[],
                         uint32_t length);
